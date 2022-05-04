@@ -7,6 +7,53 @@ class Skiplist:
         #The main point of the skiplist object, other than defining functions for
         #manipulation of the nodes, is maintaining a head pointer.
         self.head = None
+    
+
+    '''
+        From a deleted node "delnode" stitches together the prevs and nexts accordingly.
+        NOTE: Can this be modified to also account for head insertions?
+    '''
+    def __stitch__(self, delnode):
+        prevs = delnode.prevs
+        nexts = delnode.nexts
+        if prevs is None:
+            levels = self.head.levels
+            self.head = nexts[-1]
+            for i in range(levels - self.head.levels):
+                self.head.nexts.append(None)
+            #Head never has any prevs since it's the head.
+            self.head.prevs = None
+        elif all(lambda x: x is None, nexts):
+            for i in range(len(prevs)):
+                prevs[i].next = None
+        else:
+            for i in range(len(prevs)):
+                prevs[i].next = nexts[i]
+                if nexts[i] is not None:
+                    nexts[i].prevs[i] = prevs[i]
+
+    '''
+        Proper algorithm for inserting a node at the head, tail, or otherwise,
+        at the specified level for operations not involving new heads, default
+        is the "ground" level, 0.
+    '''
+    def __insert__(self, lnode, mnode, rnode, level=0):
+         if rnode is self.head: #insertion before the head. new head defined.
+            #Move the previous head nexts to the new node mnode. clear old ptrs.
+            mnode.nexts = [rnode] + rnode.nexts[1:]
+            rnode.nexts[1:] = [None] * len(rnode.nexts[1:])
+            mnode.levels = rnode.levels
+            rnode.levels = 1
+            self.head = mnode
+        elif rnode is None: #insertion after the tail.
+            lnode.nexts[level] = mnode
+            mnode.prevs[level] = lnode
+        else #insertion in between two other nodes.
+            lnode.nexts[level] = mnode
+            mnode.prevs[level] = lnode
+            rnode.prevs[level] = mnode
+            mnode.nexts[level] = rnode
+
 
     def search(self, target: int) -> bool:
         curr = self.head
@@ -50,6 +97,7 @@ class Skiplist:
 
 #Nodes for the skiplist
 class Node:
-    def __init__(self, num, levels):
+    def __init__(self, num, levels=1):
         self.nexts = [None] * levels
         self.num = num
+        self.levels = levels
