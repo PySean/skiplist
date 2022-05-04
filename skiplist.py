@@ -10,27 +10,28 @@ class Skiplist:
     
 
     '''
-        From a deleted node "delnode" stitches together the prevs and nexts accordingly.
-        NOTE: Can this be modified to also account for head insertions?
+        From a deleted node "delnode", stitches together the prev and next nodes
+        accordingly while clearing out dead ptrs.
     '''
     def __stitch__(self, delnode):
-        prevs = delnode.prevs
-        nexts = delnode.nexts
-        if prevs is None:
-            levels = self.head.levels
-            self.head = nexts[-1]
-            for i in range(levels - self.head.levels):
-                self.head.nexts.append(None)
+        if delnode.prevs is None:
+            delnode.nexts.reverse()
+            newhead = delnode.nexts.pop()
+            for i in range(delnode.levels - newhead.levels):
+                newhead.nexts.append(delnode.nexts.pop())
+                    
             #Head never has any prevs since it's the head.
-            self.head.prevs = None
-        elif all(lambda x: x is None, nexts):
-            for i in range(len(prevs)):
-                prevs[i].next = None
+            newhead.prevs = None
+            self.head = newhead
+        elif all(lambda x: x is None, delnode.nexts):
+            for i in range(len(delnode.prevs)):
+                delnode.prevs[i].next = None
+                delnode.prevs[i] = None
         else:
-            for i in range(len(prevs)):
-                prevs[i].next = nexts[i]
-                if nexts[i] is not None:
-                    nexts[i].prevs[i] = prevs[i]
+            for i in range(len(delnode.prevs)):
+                delnode.prevs[i].nexts[i] = delnode.nexts[i]
+                if delnode.nexts[i] is not None:
+                    delnode.nexts[i].prevs[i] = delnode.prevs[i]
 
     '''
         Proper algorithm for inserting a node at the head, tail, or otherwise,
