@@ -39,17 +39,17 @@ class Skiplist:
         is the "ground" level, 0.
     '''
     def __insert__(self, lnode, mnode, rnode, level=0):
-         if rnode is self.head: #insertion before the head. new head defined.
-            #Move the previous head nexts to the new node mnode. clear old ptrs.
-            mnode.nexts = [rnode] + rnode.nexts[1:]
-            rnode.nexts[1:] = [None] * len(rnode.nexts[1:])
-            mnode.levels = rnode.levels
-            rnode.levels = 1
-            self.head = mnode
+        if rnode is self.head: #insertion before the head. new head defined.
+           #Move the previous head nexts to the new node mnode. clear old ptrs.
+           mnode.nexts = [rnode] + rnode.nexts[1:]
+           rnode.nexts[1:] = [None] * len(rnode.nexts[1:])
+           mnode.levels = rnode.levels
+           rnode.levels = 1
+           self.head = mnode
         elif rnode is None: #insertion after the tail.
             lnode.nexts[level] = mnode
             mnode.prevs[level] = lnode
-        else #insertion in between two other nodes.
+        else: #insertion in between two other nodes.
             lnode.nexts[level] = mnode
             mnode.prevs[level] = lnode
             rnode.prevs[level] = mnode
@@ -58,7 +58,7 @@ class Skiplist:
 
     def search(self, target: int) -> bool:
         curr = self.head
-        level = len(self.head.nexts) - 1
+        level = self.head.levels - 1
         # Only case where we directly compare curr with the target.
         # This is because we are inspecting the next element otherwise.
         if target < curr.num:
@@ -82,13 +82,41 @@ class Skiplist:
         return False
 
     def add(self, num: int) -> None:
-        pass
+        newnode = Node(num)
+        if self.head is None:
+            self.head = newnode
+            return None
+        curr = self.head
+        level = self.head.levels - 1
+        prevs = [None] * self.head.levels
+        inserted = False
+
+        while inserted == False:
+            if curr is None and level == 0:
+                self.__insert__(prevs[level], newnode, curr)
+                inserted = True
+            elif num <= curr.num:
+                if level > 0:
+                    prevs[level] = curr
+                    level -= 1
+                    curr = curr.nexts[level]
+                else:
+                    self.__insert__(prevs[level], newnode, curr)
+                    inserted = True
+            else:
+                prevs[level] = curr
+                while curr.nexts[level] is None and level >= 1:
+                    level -= 1
+                    prevs[level] = curr
+                curr = curr.nexts[level]
+            
+        
 
     def erase(self, num: int) -> bool:
         pass
 
     def printList(self):
-        for i in range(len(self.head.nexts) - 1, -1, -1):
+        for i in range(len(self.head.nexts)):
             curr = self.head
             while curr is not None:
                 sys.stdout.write('{} '.format(curr.num))
@@ -100,5 +128,6 @@ class Skiplist:
 class Node:
     def __init__(self, num, levels=1):
         self.nexts = [None] * levels
+        self.prevs = [None] * levels
         self.num = num
         self.levels = levels
