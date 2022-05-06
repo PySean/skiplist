@@ -32,6 +32,8 @@ class Skiplist:
                 delnode.prevs[i].nexts[i] = delnode.nexts[i]
                 if delnode.nexts[i] is not None:
                     delnode.nexts[i].prevs[i] = delnode.prevs[i]
+                delnode.prevs[i] = None
+                delnode.nexts[i] = None
 
     '''
         Proper algorithm for inserting a node at the head, tail, or otherwise,
@@ -125,7 +127,11 @@ class Skiplist:
         
 
     def erase(self, num: int) -> bool:
-        pass
+        delnode = self.__find__(num)
+        if delnode is not None:
+            self.__stitch__(delnode)
+            return True
+        return False
 
     def printList(self):
         for i in range(len(self.head.nexts)):
