@@ -50,6 +50,7 @@ class Skiplist:
            self.head = mnode
            mnode.prevs[:] = [None] * len(mnode.prevs)
            mnode.prevs = None
+           rnode.prevs = [mnode]
         elif rnode is None: #insertion after the tail.
             lnode.nexts[level] = mnode
             mnode.prevs[level] = lnode
@@ -135,13 +136,22 @@ class Skiplist:
             return True
         return False
 
-    def printList(self):
+    def printList(self, backwalk=False):
         for i in range(len(self.head.nexts)):
             curr = self.head
+            prev = curr
             while curr is not None:
                 sys.stdout.write('{} '.format(curr.num))
+                prev = curr
                 curr = curr.nexts[i]
             print()
+            if backwalk == True:
+                while prev is not None and prev.prevs is not None:
+                    sys.stdout.write('{} '.format(prev.num))
+                    prev = prev.prevs[i] 
+                sys.stdout.write('{} '.format(prev.num))
+                print()
+
         print('-' * 25)
             
 
