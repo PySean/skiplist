@@ -23,7 +23,7 @@ class Skiplist:
             #Head never has any prevs since it's the head.
             newhead.prevs = None
             self.head = newhead
-        elif all(lambda x: x is None, delnode.nexts):
+        elif all(map(lambda x: x is None, delnode.nexts)):
             for i in range(len(delnode.prevs)):
                 delnode.prevs[i].next = None
                 delnode.prevs[i] = None
@@ -48,6 +48,8 @@ class Skiplist:
            mnode.levels = rnode.levels
            rnode.levels = 1
            self.head = mnode
+           mnode.prevs[:] = [None] * len(mnode.prevs)
+           mnode.prevs = None
         elif rnode is None: #insertion after the tail.
             lnode.nexts[level] = mnode
             mnode.prevs[level] = lnode
