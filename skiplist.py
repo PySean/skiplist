@@ -55,16 +55,21 @@ class Skiplist:
             rnode.prevs[level] = mnode
             mnode.nexts[level] = rnode
 
-
-    def search(self, target: int) -> bool:
+    '''
+        Returns a pointer to the first node found with the requested target value.
+    '''
+    def __find__(self, target: int) -> Node:
         curr = self.head
         level = self.head.levels - 1
         # Only case where we directly compare curr with the target.
         # This is because we are inspecting the next element otherwise.
+        if curr is None:
+            print("Empty list!")
+            return None
         if target < curr.num:
-            return False
+            return None
         elif target == curr.num:
-            return True
+            return curr
 
         while curr is not None and level > 0:
             n = curr.nexts[level]
@@ -74,12 +79,19 @@ class Skiplist:
             if n is None:
                 break
             if n.num == target:
-                return True
+                return n
             elif n.num < target:
                 curr = n
             else:
                 level -= 1
-        return False
+        return None
+       
+    def search(self, target: int) -> bool:
+        node = self.__find__(target)
+        if node is None:
+            return False
+        else:
+            return True
 
     def add(self, num: int) -> None:
         newnode = Node(num)
@@ -122,6 +134,7 @@ class Skiplist:
                 sys.stdout.write('{} '.format(curr.num))
                 curr = curr.nexts[i]
             print()
+        print('-' * 25)
             
 
 #Nodes for the skiplist
