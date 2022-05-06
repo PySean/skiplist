@@ -60,7 +60,7 @@ class Skiplist:
     '''
         Returns a pointer to the first node found with the requested target value.
     '''
-    def __find__(self, target: int) -> Node:
+    def __find__(self, target: int) -> object:
         curr = self.head
         level = self.head.levels - 1
         # Only case where we directly compare curr with the target.
@@ -73,9 +73,9 @@ class Skiplist:
         elif target == curr.num:
             return curr
 
-        while curr is not None and level > 0:
+        while curr is not None and level >= 0:
             n = curr.nexts[level]
-            while n is None and level > 0:
+            while n is None and level >= 0:
                 level -= 1
                 n = curr.nexts[level]
             if n is None:
