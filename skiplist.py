@@ -48,7 +48,7 @@ class Skiplist:
            mnode.levels = rnode.levels
            rnode.levels = 1
            self.head = mnode
-           mnode.prevs[:] = [None] * len(mnode.prevs)
+           #mnode.prevs[:] = [None] * len(mnode.prevs)
            mnode.prevs = None
            rnode.prevs = [mnode]
         elif rnode is None: #insertion after the tail.
@@ -116,9 +116,13 @@ class Skiplist:
                 if level > 0:
                     prevs[level] = curr
                     level -= 1
-                    curr = curr.nexts[level]
+                    #curr = curr.nexts[level]
                 else:
-                    self.__insert__(prevs[level], newnode, curr)
+                    if curr is not self.head:
+                        theprev = curr.prevs[level]
+                    else:
+                        theprev = prevs[level]
+                    self.__insert__(theprev, newnode, curr)
                     inserted = True
             else:
                 prevs[level] = curr
@@ -126,8 +130,29 @@ class Skiplist:
                     level -= 1
                     prevs[level] = curr
                 curr = curr.nexts[level]
-            
-        
+                print('prevs is {}\n level is {}\n curr is {}'.format(str(prevs), level, str(curr)))
+                
+        #Level up.
+        while random.randint(0, 1) == 1:
+             level += 1
+             newnode.levels += 1
+             if level > self.head.levels - 1:
+                self.head.levels += 1
+                if newnode is not self.head:
+                    self.head.nexts.append(newnode)
+                    newnode.prevs.append(self.head)
+                    newnode.nexts.append(None)
+                else:
+                    self.head.nexts.append(None)
+             else:
+                if newnode is not self.head:
+                    newnode.prevs.append(None)
+                    newnode.nexts.append(None)
+                    newnode.prevs[level] = prevs[level]
+                    newnode.nexts[level] = prevs[level].nexts[level]
+                    prevs[level].nexts[level] = newnode
+                else:
+                    newnode.nexts.append(None)
 
     def erase(self, num: int) -> bool:
         delnode = self.__find__(num)
