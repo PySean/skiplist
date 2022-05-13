@@ -126,11 +126,11 @@ class Skiplist:
                     inserted = True
             else:
                 prevs[level] = curr
-                while curr.nexts[level] is None and level >= 1:
+                while (curr.nexts[level] is None or num < curr.nexts[level].num) and level >= 1:
                     level -= 1
                     prevs[level] = curr
-                curr = curr.nexts[level]
-                print('prevs is {}\n level is {}\n curr is {}'.format(str(prevs), level, str(curr)))
+                if curr.nexts[level] is None or num >= curr.nexts[level].num or level == 0:
+                    curr = curr.nexts[level]
                 
         #Level up.
         while random.randint(0, 1) == 1:
