@@ -42,15 +42,19 @@ class Skiplist:
     '''
     def __insert__(self, lnode, mnode, rnode, level=0):
         if rnode is self.head: #insertion before the head. new head defined.
-           #Move the previous head nexts to the new node mnode. clear old ptrs.
-           mnode.nexts = [rnode] + rnode.nexts[1:]
-           rnode.nexts[1:] = [None] * len(rnode.nexts[1:])
-           mnode.levels = rnode.levels
-           rnode.levels = 1
-           self.head = mnode
-           #mnode.prevs[:] = [None] * len(mnode.prevs)
-           mnode.prevs = None
-           rnode.prevs = [mnode]
+            #Move the previous head nexts to the new node mnode. clear old ptrs.
+            mnode.nexts = [rnode] + rnode.nexts[1:]
+            #reassign the prevs of our head's nexts to the new head.
+            for i in range(1, rnode.levels):
+                if rnode.nexts[i] is not None:
+                    rnode.nexts[i].prevs[i] = mnode
+            rnode.nexts[1:] = [None] * len(rnode.nexts[1:])
+            mnode.levels = rnode.levels
+            rnode.levels = 1
+            self.head = mnode
+            #mnode.prevs[:] = [None] * len(mnode.prevs)
+            mnode.prevs = None
+            rnode.prevs = [mnode]
         elif rnode is None: #insertion after the tail.
             lnode.nexts[level] = mnode
             mnode.prevs[level] = lnode
