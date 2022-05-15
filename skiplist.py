@@ -154,10 +154,12 @@ class Skiplist:
                     newnode.nexts.append(None)
                     newnode.prevs[level] = prevs[level]
                     newnode.nexts[level] = prevs[level].nexts[level]
+                    if prevs[level].nexts[level] is not None:
+                        prevs[level].nexts[level].prevs[level] = newnode
                     prevs[level].nexts[level] = newnode
                 else:
                     newnode.nexts.append(None)
-
+        print('added {}'.format(num))
     def erase(self, num: int) -> bool:
         delnode = self.__find__(num)
         if delnode is not None:
@@ -166,22 +168,43 @@ class Skiplist:
         return False
 
     def printList(self, backwalk=False):
+        forwards = ''
+        backwards = ''
         for i in range(len(self.head.nexts)):
             curr = self.head
             prev = curr
             while curr is not None:
-                sys.stdout.write('{} '.format(curr.num))
+                forwards += '{} '.format(curr.num)
+                #sys.stdout.write('{} '.format(curr.num))
                 prev = curr
                 curr = curr.nexts[i]
-            print()
+            #print()
+            forwards += '\n'
             if backwalk == True:
-                while prev is not None and prev.prevs is not None:
-                    sys.stdout.write('{} '.format(prev.num))
-                    prev = prev.prevs[i] 
-                sys.stdout.write('{} '.format(prev.num))
-                print()
-
+                #print('Reverse')
+                while prev is not None:
+                    backwards += '{} '.format(prev.num)
+                    #sys.stdout.write('{} '.format(prev.num))
+                    if prev.prevs is not None:
+                        try:
+                            prev = prev.prevs[i] 
+                        except IndexError as I:
+                            print(I)
+                            print(forwards)
+                            print('-' * 25)
+                            print(backwards)
+                            return
+                    else:
+                        prev = None
+                #sys.stdout.write('{} '.format(prev.num))
+                #print()
+                backwards += '\n'
+        sys.stdout.write(forwards)
         print('-' * 25)
+        if backwalk == True:
+            sys.stdout.write(backwards)
+            print('-' * 25)
+
             
 
 #Nodes for the skiplist
