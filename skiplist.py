@@ -15,17 +15,21 @@ class Skiplist:
     '''
     def __stitch__(self, delnode):
         if delnode.prevs is None:
-            delnode.nexts.reverse()
-            newhead = delnode.nexts.pop()
-            for i in range(delnode.levels - newhead.levels):
-                newhead.nexts.append(delnode.nexts.pop())
+            newhead = delnode.nexts[0]
+            if len(delnode.nexts) > len(newhead.nexts):
+                for node in delnode.nexts[len(newhead.nexts):]:
+                    newhead.nexts.append(node)
+                delnode.nexts[:] = [None] * len(delnode.nexts)
+                delnode.nexts = None
+            for i in range(len(newhead.prevs)):
+                newhead.prevs[i] = None
                     
             #Head never has any prevs since it's the head.
             newhead.prevs = None
             self.head = newhead
         elif all(map(lambda x: x is None, delnode.nexts)):
             for i in range(len(delnode.prevs)):
-                delnode.prevs[i].next = None
+                delnode.prevs[i].nexts[i] = None
                 delnode.prevs[i] = None
         else:
             for i in range(len(delnode.prevs)):
@@ -49,6 +53,7 @@ class Skiplist:
                 if rnode.nexts[i] is not None:
                     rnode.nexts[i].prevs[i] = mnode
             rnode.nexts[1:] = [None] * len(rnode.nexts[1:])
+            rnode.nexts = [rnode.nexts[0]]
             mnode.levels = rnode.levels
             rnode.levels = 1
             self.head = mnode
@@ -161,11 +166,16 @@ class Skiplist:
                     newnode.nexts.append(None)
         print('added {}'.format(num))
     def erase(self, num: int) -> bool:
+        val = False
         delnode = self.__find__(num)
         if delnode is not None:
             self.__stitch__(delnode)
-            return True
-        return False
+            val = True
+        if val == True:
+            print('erased {}'.format(num))
+        else:
+            print('{} not found'.format(num))
+        return val
 
     def printList(self, backwalk=False):
         forwards = ''
