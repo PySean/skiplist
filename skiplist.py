@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import random
 import sys
+import traceback
 
 class Skiplist:
     def __init__(self):
@@ -19,11 +20,17 @@ class Skiplist:
             if len(delnode.nexts) > len(newhead.nexts):
                 for node in delnode.nexts[len(newhead.nexts):]:
                     newhead.nexts.append(node)
-                delnode.nexts[:] = [None] * len(delnode.nexts)
-                delnode.nexts = None
+
             for i in range(len(newhead.prevs)):
                 newhead.prevs[i] = None
-                    
+
+            for i in range(1, len(delnode.nexts)):
+                oldnext = delnode.nexts[i]
+                if oldnext is not None:
+                    oldnext.prevs[i] = newhead
+            delnode.nexts[:] = [None] * len(delnode.nexts)
+            delnode.nexts = None
+            newhead.levels = delnode.levels
             #Head never has any prevs since it's the head.
             newhead.prevs = None
             self.head = newhead
@@ -200,6 +207,7 @@ class Skiplist:
                             prev = prev.prevs[i] 
                         except IndexError as I:
                             print(I)
+                            #traceback.print_exc()
                             print(forwards)
                             print('-' * 25)
                             print(backwards)
