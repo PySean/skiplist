@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import random
 import sys
-import traceback
 
 class Skiplist:
     def __init__(self):
@@ -118,6 +117,7 @@ class Skiplist:
         newnode = Node(num)
         if self.head is None:
             self.head = newnode
+            self.head.prevs = None
             return None
         curr = self.head
         level = self.head.levels - 1
@@ -207,7 +207,7 @@ class Skiplist:
                             prev = prev.prevs[i] 
                         except IndexError as I:
                             print(I)
-                            #traceback.print_exc()
+                            print('prev causing the issue is {}'.format(prev.num))
                             print(forwards)
                             print('-' * 25)
                             print(backwards)
