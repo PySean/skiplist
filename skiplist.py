@@ -63,7 +63,6 @@ class Skiplist:
             mnode.levels = rnode.levels
             rnode.levels = 1
             self.head = mnode
-            #mnode.prevs[:] = [None] * len(mnode.prevs)
             mnode.prevs = None
             rnode.prevs = [mnode]
         elif rnode is None: #insertion after the tail.
@@ -132,7 +131,6 @@ class Skiplist:
                 if level > 0:
                     prevs[level] = curr
                     level -= 1
-                    #curr = curr.nexts[level]
                 else:
                     if curr is not self.head:
                         theprev = curr.prevs[level]
@@ -142,10 +140,10 @@ class Skiplist:
                     inserted = True
             else:
                 prevs[level] = curr
-                while (curr.nexts[level] is None or num < curr.nexts[level].num) and level >= 1:
+                while (curr.nexts[level] is None or num <= curr.nexts[level].num) and level >= 1:
                     level -= 1
                     prevs[level] = curr
-                if curr.nexts[level] is None or num >= curr.nexts[level].num or level == 0:
+                if curr.nexts[level] is None or num > curr.nexts[level].num or level == 0:
                     curr = curr.nexts[level]
                 
         #Level up.
@@ -192,16 +190,12 @@ class Skiplist:
             prev = curr
             while curr is not None:
                 forwards += '{} '.format(curr.num)
-                #sys.stdout.write('{} '.format(curr.num))
                 prev = curr
                 curr = curr.nexts[i]
-            #print()
             forwards += '\n'
             if backwalk == True:
-                #print('Reverse')
                 while prev is not None:
                     backwards += '{} '.format(prev.num)
-                    #sys.stdout.write('{} '.format(prev.num))
                     if prev.prevs is not None:
                         try:
                             prev = prev.prevs[i] 
@@ -214,8 +208,6 @@ class Skiplist:
                             return
                     else:
                         prev = None
-                #sys.stdout.write('{} '.format(prev.num))
-                #print()
                 backwards += '\n'
         sys.stdout.write(forwards)
         print('-' * 25)
